@@ -1,22 +1,11 @@
-from utils.connections import Connection
-import tweepy
-from decouple import config
-from tweepy import OAuthHandler
+from .connection import Connection
 from tweepy.error import TweepError
 from pymongo.errors import BulkWriteError
+import tweepy
 
-# Accessing Twitter API
-consumer_key = config("TWITTER_CONSUMER_KEY")  # API key
-consumer_secret = config("TWITTER_CONSUMER_SECRET")  # API secret
-access_token = config("TWITTER_ACCESS_TOKEN")
-access_secret = config("TWITTER_ACCESS_SECRET")
 
-auth = OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_secret)
-api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
-
-def save_new_users(user_ids, job_name):
-    collection_job = Connection.Instance().jobs_db[job_name]
+def save_new_users(user_ids, job):
+    collection_job = Connection.Instance().jobs_db[job.name]
 
     res = collection_job.aggregate(
        [
@@ -41,6 +30,10 @@ def save_new_users(user_ids, job_name):
         slice_user_ids = new_user_ids[i:i+100]
         user_profiles += get_user_profiles_single_request(slice_user_ids)
 
+    # Determine features for each profile
+    for profile in user_profiles:
+        profile["features"] = {func.__name__ : func(profile) for func in job.classifiers}
+
     try:
         collection_job.insert_many(user_profiles, ordered=False)
         print("Profiles saved !")
@@ -53,7 +46,7 @@ def save_new_users(user_ids, job_name):
 def get_user_profiles_single_request(user_ids):
     assert len(user_ids) <= 100
 
-    user_profiles =  [x._json for x in api.lookup_users(user_ids)]
+    user_profiles =  [x._json for x in Connection.Instance().api.lookup_users(user_ids)]
 
     for user in user_profiles:
         user["finished"] = False
@@ -63,8 +56,9 @@ def get_user_profiles_single_request(user_ids):
 
     return user_profiles
 
+
 def get_followers_page_and_next_cursor(_screen_name, _cursor = -1):
-    cursor = tweepy.Cursor(api.followers_ids, screen_name=_screen_name , cursor = _cursor).pages()
+    cursor = tweepy.Cursor(Connection.Instance().api.followers_ids, screen_name=_screen_name , cursor = _cursor).pages()
 
     try:
         page = cursor.next()

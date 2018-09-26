@@ -1,10 +1,39 @@
+from random import randint
+import sys
+from decouple import config
+sys.path.insert(0, config("ROOT_DIR"))
+
+from lib.job import Job
+
 def classifier_best(profile):
-	return 1
+    return 1
+
 
 def classifier_awesome(profile):
-	return 0
+    return 0
+
 
 user_limit = 10000
+
+
+def crawling_strategy(collection_job):
+    active_users = collection_job.find({"finished": False, "authorized": True})
+
+    # choose one of them randomly. Implement a better strategy that solves
+    # exploration-exploitation problem
+    index = randint(0, active_users.count() - 1)
+
+    try:
+        user = active_users.skip(index)[0]
+    except IndexError:
+        print(index, active_users.count())
+        # TODO : if this block of code runs, then user is not created ???
+
+    return user
+
+
+access_token = "821415961467228161-VACE9uCDD3xbVdDt9jQjVdCWgI1d9bx"
+access_secret = "serQc8bRcw1INq7lkREpseSVR1BWAYIJDZI8YeXvvk6Dq"
 
 seed_list = [
     793924506540572672,
@@ -108,3 +137,5 @@ seed_list = [
     880355027843502080,
     2354921233
 ]
+
+job = Job("test_job", [classifier_awesome, classifier_best] ,crawling_strategy, seed_list, user_limit, access_token, access_secret)
