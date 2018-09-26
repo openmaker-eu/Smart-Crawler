@@ -1,7 +1,7 @@
 from mongoengine import DictField, LongField, ReferenceField, CASCADE
 
-from smart_crawler.models import Job
-from smart_crawler.models.Base import BaseDocument, BaseSchema, BaseFactory
+from .Job import Job
+from .Base import BaseDocument, BaseSchema, BaseFactory
 
 
 class Profile(BaseDocument):

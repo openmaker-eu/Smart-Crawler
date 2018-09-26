@@ -1,6 +1,6 @@
-from mongoengine import StringField, DictField, LongField, ListField
+from mongoengine import StringField, DictField, LongField, ListField, BooleanField
 
-from smart_crawler.models.Base import BaseDocument, BaseSchema, BaseFactory
+from .Base import BaseDocument, BaseSchema, BaseFactory
 
 
 class Job(BaseDocument):
@@ -9,6 +9,7 @@ class Job(BaseDocument):
     crawling_strategy = StringField()
     seed_list = ListField(LongField())
     twitter_credentials = ListField(StringField(), max_length=2, min_length=2)
+    is_active = BooleanField(default=False)
     meta = {'collection': 'jobs'}
 
     def schema(self):
