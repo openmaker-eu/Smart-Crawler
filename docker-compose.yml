@@ -63,6 +63,19 @@ services:
 
         command: rq worker -c utils.settings
 
+    job_waiting_rq_worker:
+        restart: always
+        container_name: job_waiting_rq_worker
+        volumes:
+        - "./:/root/smart_crawler"
+        build:
+            context: ./
+            dockerfile: ./.docker/rq-worker.docker
+        links:
+        - smart_crawler_redis:db
+
+        command: rq worker -c utils.settings
+
     profile_rq_worker:
         restart: always
         volumes:
