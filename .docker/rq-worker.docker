@@ -13,8 +13,6 @@ WORKDIR /root/smart_crawler
 
 RUN pip3 install --upgrade pip
 
-ADD ./.env /root/smart_crawler/.env
-
 ADD ./requirements.txt /root/smart_crawler/requirements.txt
 
 RUN pip3 install -r /root/smart_crawler/requirements.txt

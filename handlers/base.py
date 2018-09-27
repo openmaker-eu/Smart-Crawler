@@ -2,7 +2,7 @@ import tornado.web
 import tornado
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
-from smart_crawler.settings import app_settings
+from settings import app_settings
 
 
 class BaseHandler(tornado.web.RequestHandler):

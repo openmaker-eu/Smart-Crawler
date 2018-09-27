@@ -20,7 +20,7 @@ services:
         container_name: smart_crawler_server
         tty: true
         volumes:
-            - "./smart_crawler:/root/smart_crawler"
+            - "./:/root/smart_crawler"
         build:
             context: ./
             dockerfile: ./.docker/server.docker
@@ -54,7 +54,7 @@ services:
     job_rq_worker:
         restart: always
         volumes:
-            - "./smart_crawler:/root/smart_crawler"
+            - "./:/root/smart_crawler"
         build:
             context: ./
             dockerfile: ./.docker/rq-worker.docker
@@ -66,7 +66,7 @@ services:
     profile_rq_worker:
         restart: always
         volumes:
-            - "./smart_crawler:/root/smart_crawler"
+            - "./:/root/smart_crawler"
         build:
             context: ./
             dockerfile: ./.docker/rq-worker.docker

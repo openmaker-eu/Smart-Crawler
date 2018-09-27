@@ -1,4 +1,4 @@
-from smart_crawler.handlers.base import BaseHandler, TemplateRendering
+from handlers.base import BaseHandler, TemplateRendering
 
 
 class JobHandler(BaseHandler, TemplateRendering):

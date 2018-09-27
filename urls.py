@@ -1,6 +1,6 @@
-from smart_crawler.handlers.base import StaticHandler
-from smart_crawler.handlers.handler_job import JobHandler
-from smart_crawler.settings import app_settings
+from handlers.base import StaticHandler
+from handlers.handler_job import JobHandler
+from settings import app_settings
 
 url_patterns = [
     # --- JOB --- #

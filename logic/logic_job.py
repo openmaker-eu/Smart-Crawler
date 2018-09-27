@@ -3,7 +3,7 @@ import logging
 
 from mongoengine import DoesNotExist
 
-from smart_crawler.models.Job import Job
+from models.Job import Job
 
 
 def get_job(job_id):

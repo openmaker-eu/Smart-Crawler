@@ -3,9 +3,9 @@ from tornado.options import options
 import tornado.web
 
 from decouple import config
-from smart_crawler.settings import app_settings
+from settings import app_settings
 
-from smart_crawler.urls import url_patterns
+from urls import url_patterns
 from logging import handlers
 import logging
 from mongoengine import connect
