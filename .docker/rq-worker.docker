@@ -1,0 +1,24 @@
+FROM ubuntu:16.04
+
+RUN apt-get update --fix-missing && apt-get upgrade -y
+RUN apt-get install -y libffi-dev libmagic-dev libmagickwand-dev curl
+RUN apt-get install -y python3-dev python3-pip git
+
+RUN apt-get clean && apt-get -y update && apt-get install -y locales && locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+WORKDIR /root/smart_crawler
+
+RUN pip3 install --upgrade pip
+
+ADD ./.env /root/smart_crawler/.env
+
+ADD ./requirements.txt /root/smart_crawler/requirements.txt
+
+RUN pip3 install -r /root/smart_crawler/requirements.txt
+
+ENV PATH="/root/smart_crawler:${PATH}"
+
+ENV PYTHONPATH="/root/smart_crawler:${PYTHONPATH}"

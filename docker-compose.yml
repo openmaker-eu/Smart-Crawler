@@ -1,0 +1,76 @@
+version: '3'
+services:
+    smart_crawler_mongodb:
+        restart: always
+        container_name: smart_crawler_mongodb
+        build:
+            context: ./
+            dockerfile: ./.docker/mongodb.docker
+        volumes:
+            - "${MONGODB_PATH}:/data/db"
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+        ports:
+            - "27017:27017"
+        command: --auth
+
+    smart_crawler_server:
+        restart: always
+        container_name: smart_crawler_server
+        tty: true
+        volumes:
+            - "./smart_crawler:/root/smart_crawler"
+        build:
+            context: ./
+            dockerfile: ./.docker/server.docker
+        ports:
+          - "${HOST_PORT}:${HOST_PORT}"
+
+    smart_crawler_redis:
+        restart: always
+        container_name: smart_crawler_redis
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        build:
+            context: ./
+            dockerfile: ./.docker/redis.docker
+        ports:
+            - "6379:6379"
+
+    smart_crawler_rq_dashboard:
+        restart: always
+        container_name: smart_crawler_rq_dashboard
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        build:
+            context: ./
+            dockerfile: ./.docker/rq-dashboard.docker
+        ports:
+            - "9181:9181"
+        links:
+            - smart_crawler_redis:db
+
+    job_rq_worker:
+        restart: always
+        volumes:
+            - "./smart_crawler:/root/smart_crawler"
+        build:
+            context: ./
+            dockerfile: ./.docker/rq-worker.docker
+        links:
+            - smart_crawler_redis:db
+
+        command: rq worker -c utils.settings
+
+    profile_rq_worker:
+        restart: always
+        volumes:
+            - "./smart_crawler:/root/smart_crawler"
+        build:
+            context: ./
+            dockerfile: ./.docker/rq-worker.docker
+        links:
+            - smart_crawler_redis:db
+
+        command: rq worker -c utils.settings
