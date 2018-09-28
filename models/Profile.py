@@ -1,4 +1,4 @@
-from mongoengine import DictField, LongField, ReferenceField, ListField, FloatField, CASCADE
+from mongoengine import DictField, LongField, ReferenceField, ListField, FloatField, BooleanField, CASCADE
 
 from .Job import Job
 from .Base import BaseDocument, BaseSchema, BaseFactory
@@ -10,6 +10,9 @@ class Profile(BaseDocument):
     user_id = LongField()
     classifier_scores = ListField(FloatField())
     crawling_score = FloatField()
+    authorized =  BooleanField(default=False)
+    last_cursor = LongField(default=-1)
+    finished = LongField(default=True)
     meta = {
         'collection': 'profiles',
         'index_background': True,
