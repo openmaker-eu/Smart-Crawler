@@ -6,7 +6,7 @@ from .Base import BaseDocument, BaseSchema, BaseFactory
 class Job(BaseDocument):
     name = StringField(max_length=20, unique=True)
     classifiers = DictField()
-    crawling_strategy = StringField()
+    crawling_score = StringField()
     seed_list = ListField(LongField())
     twitter_credentials = ListField(StringField(), max_length=2, min_length=2)
     is_active = BooleanField(default=False)
