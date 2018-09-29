@@ -8,7 +8,8 @@ class Job(BaseDocument):
     classifiers = DictField()
     crawling_score = StringField()
     seed_list = ListField(LongField())
-    twitter_credentials = ListField(StringField(), max_length=2, min_length=2)
+    twitter_access_token = StringField()
+    twitter_access_secret = StringField()
     is_active = BooleanField(default=False)
     meta = {'collection': 'jobs'}
 
