@@ -43,7 +43,7 @@ def get_jobs():
     jobs_json = []
 
     for job in jobs:
-        jobs.append(job.to_dict())
+        jobs_json.append(job.to_dict())
 
     return json.dumps(jobs_json)
 
