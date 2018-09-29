@@ -144,3 +144,25 @@ def post_job_is_active(job_id, is_active):
     job.save()
 
     return {'response': True}
+
+def post_job_initialize(job_id):
+    logging.info("job_id: {0}".format(job_id))
+    if type(job_id) is not str:
+        return {'error': 'job_id must be string!'}
+
+    try:
+        job = Job.objects.get(id=job_id)
+    except DoesNotExist:
+        return {
+            'message': 'job not found',
+            'response': False
+        }
+    except Exception as e:
+        logging.error("exception: {0}".format(str(e)))
+        return {'error': str(e)}
+
+    job._initialised = True
+
+    job.save()
+
+    return {'response': True}
