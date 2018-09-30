@@ -1,3 +1,4 @@
+import json
 import logging
 
 from mongoengine import DoesNotExist
@@ -13,10 +14,8 @@ def get_job(job_id):
     if job_id == 'new':
         job = {
             'name': '',
-
         }
         return job
-
     try:
         job = Job.objects.get(id=job_id)
     except DoesNotExist:
@@ -60,8 +59,8 @@ def post_job(name, classifiers, crawling_score, seed_list, twitter_access_key, t
 
     data = {
         'name': name,
-        'classifiers': classifiers,
-        'crawling_strategy': crawling_score,
+        'classifiers': json.dumps(classifiers),
+        'crawling_strategy': json.dumps(crawling_score),
         'seed_list': seed_list,
         'twitter_access_token': twitter_access_key,
         'twitter_access_secret': twitter_access_secret

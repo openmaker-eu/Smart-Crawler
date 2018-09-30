@@ -1,5 +1,3 @@
-import json
-
 from handlers.base import BaseHandler, TemplateRendering
 from logic.logic_job import get_jobs, get_job, post_job, post_job_is_active, delete_job, update_job
 
