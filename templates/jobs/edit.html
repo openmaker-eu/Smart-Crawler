@@ -1,0 +1,155 @@
+{% extends "app.html" %}
+
+{% block styles %}
+    <link href="/static/css/plugins.min.css" rel="stylesheet">
+    <link href="/static/css/adminlte.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-tagsinput.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <div class="col-md-12">
+        <!-- Horizontal Form -->
+        <div class="box box-primary">
+            <!-- form start -->
+            <form id="jobForm" method="POST" accept-charset="UTF-8">
+                <div class="box-body">
+                    <div class="col-md-12 form-group">
+                        <label for="name">Name</label>
+                        <input class="form-control" value="{{ job['name'] }}" name="name" type="text" id="name">
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label for="seed_list">Seed List
+                            <small>You can type for example: <code>123,311,341</code> then press "enter" button.</small>
+                        </label>
+                        <input type="text" name="seed_list" value="{{ job['seed_list']|join(", ") }}" style="width: 100%" data-role="tagsinput">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="crawling_scores">Crawling Score</label>
+                        <div id="crawling_scores" style="height:200px;"></div>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="classifiers">Classifiers</label>
+                        <div id="classifiers" style="height:200px;"></div>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>Twitter Access Key</label>
+                        <input class="form-control" value="{{ job['twitter_access_token'] }}" name="tw_acc_key" type="text" id="tw_acc_key">
+                        <small class="text-danger"></small>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>Twitter Access Secret</label>
+                        <input class="mobile form-control" value="{{ job['twitter_access_secret'] }}" name="tw_acc_secret" type="text" id="tw_acc_secret">
+                        <small class="text-danger"></small>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                    <div class="btn-group pull-right">
+                        <input class="btn btn-success" type="submit" value="Edit">
+                    </div>
+                </div>
+                <!-- /.box-footer -->
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/static/js/require.min.js"></script>
+    <script src="/static/js/bootstrap-tagsinput.min.js"></script>
+    <script src="/static/vs/loader.js"></script>
+    <script src="/static/vs/editor/editor.main.nls.js"></script>
+    <script src="/static/vs/editor/editor.main.js"></script>
+    <script>
+        require.config({paths: {'vs': '/static/vs'}});
+        let classifiersEditor, crawlingScoresEditor = null;
+
+        require(['vs/editor/editor.main'], function () {
+            classifiersEditor = monaco.editor.create(document.getElementById("classifiers"), {
+                value: "{{ job['classifiers'] }}",
+                language: "python",
+
+                lineNumbers: "off",
+                roundedSelection: false,
+                scrollBeyondLastLine: false,
+                readOnly: true,
+                theme: "vs-dark",
+            });
+
+            crawlingScoresEditor = monaco.editor.create(document.getElementById("crawling_scores"), {
+                value: "{{ job['crawling_strategy'] }}",
+                language: "python",
+
+                lineNumbers: "off",
+                roundedSelection: false,
+                scrollBeyondLastLine: false,
+                readOnly: true,
+                theme: "vs-dark",
+            });
+        });
+
+        $('#jobForm').submit(function (e) {
+            e.preventDefault();
+            var jobName = $(this).find('input[name="name"]').val();
+            var seedList = $(this).find('input[name="seed_list"]').val();
+
+            var twAccKey = $(this).find('input[name="tw_acc_key"]').val();
+            var twAccSecret = $(this).find('input[name="tw_acc_secret"]').val();
+
+            var jobData = {
+                jobName: jobName,
+                seedList: seedList,
+                twAccKey: twAccKey,
+                twAccSecret: twAccSecret
+            };
+
+            $.ajax({
+                url: '/job/{{ job['id'] }}',
+                type: 'post',
+                data: jobData,
+                success: function (response) {
+                    if (response.response) {
+                        swal({
+                                title: "Great!",
+                                text: "Job is updated!",
+                                type: "success",
+                                showCancelButton: false,
+                                confirmButtonClass: "btn-success",
+                                confirmButtonText: "Ok!",
+                                closeOnConfirm: true,
+                                closeOnCancel: false
+                            },
+                            function () {
+                                window.location.replace("/jobs");
+                            });
+                    } else {
+                        swal({
+                            title: "Caution!",
+                            text: "Job cannot be saved! Error: ".concat(response.error),
+                            type: "error",
+                            showCancelButton: false,
+                            confirmButtonClass: "btn-success",
+                            confirmButtonText: "Ok!",
+                            closeOnConfirm: true,
+                            closeOnCancel: false
+                        });
+                    }
+
+                },
+                error: function () {
+                    swal({
+                        title: "Caution!",
+                        text: "Job cannot be saved!",
+                        type: "error",
+                        showCancelButton: false,
+                        confirmButtonClass: "btn-success",
+                        confirmButtonText: "Ok!",
+                        closeOnConfirm: true,
+                        closeOnCancel: false
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}
