@@ -57,7 +57,7 @@ services:
             - "./:/root/smart_crawler"
         build:
             context: ./
-            dockerfile: ./.docker/rq-worker.docker
+            dockerfile: ./.docker/rq-worker.docker ${JOB_RQ_WORKER_Q_NAME}
         links:
             - smart_crawler_redis:db
 
@@ -74,7 +74,7 @@ services:
         links:
         - smart_crawler_redis:db
 
-        command: rq worker -c utils.settings
+        command: rq worker -c utils.settings ${JOB_WAITING_RQ_WORKER_Q_NAME}
 
     profile_rq_worker:
         restart: always
@@ -86,4 +86,4 @@ services:
         links:
             - smart_crawler_redis:db
 
-        command: rq worker -c utils.settings
+        command: rq worker -c utils.settings ${PROFILE_RQ_WORKER_Q_NAME}
