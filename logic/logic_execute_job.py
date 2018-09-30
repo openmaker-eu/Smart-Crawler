@@ -14,11 +14,13 @@ from models.Profile import Profile
 
 
 def functionify(job_dict):
-    # Converts functions in string form to real python functions
-    job_dict["crawling_score"] = code_to_python_function(job_dict["crawling_score"])
+    job_dict["crawling_score"] = code_to_python_function(job_dict["crawling_score"])[0]
 
-    for key, value in job_dict["classifiers"].items():
-        job_dict[key] = code_to_python_function(value)
+    classifiers_text = job_dict["classifiers"]
+    job_dict["classifiers"] = {}
+
+    for func in code_to_python_function(classifiers_text):
+        job_dict["classifiers"][func.__name__] = func
 
     # TODO : Is it logical to do this ?
     # Create Tweepy api from given credentials
@@ -26,15 +28,17 @@ def functionify(job_dict):
 
 
 def code_to_python_function(code):
-    # Returns first function that is executed from code
+    # Converts functions in string form to real python functions
     context = {}
     exec(code, context, context)
 
-    for key, value in context.items():
-        if callable(value):
-            return value
+    funcs = []
 
-    return None
+    for _, value in context.items():
+        if callable(value):
+            funcs.append(value)
+
+    return funcs
 
 
 def execute_job(job_id):

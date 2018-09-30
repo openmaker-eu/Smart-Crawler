@@ -5,7 +5,7 @@ from .Base import BaseDocument, BaseSchema, BaseFactory
 
 class Job(BaseDocument):
     name = StringField(max_length=20, unique=True)
-    classifiers = DictField()
+    classifiers = StringField()
     crawling_score = StringField()
 
     # TODO : Is the assumption that the maximum length is 100 logical ?
