@@ -1,0 +1,20 @@
+{% for profile in profiles %}
+    <div class="profile_card">
+        <div class="bg" style="background-image:url({{ profile['profile']['profile_banner_url'] }})"></div>
+        <div class="pp" align="center">
+            <img src="{{ (profile['profile']['profile_image_url_https'][:4] + profile['profile']['profile_image_url_https'][5:]).replace('normal', '400x400') }}"
+                 alt=""/>
+        </div>
+        <div class="details">
+            <span id="name">{{ profile['profile']['name'] }}</span>
+            <a href="http://twitter.com/{{ profile['profile']['screen_name'] }}" target="_blank"><span
+                    id="nick"> @{{ profile['profile']['screen_name'] }} </span></a>
+            <span id="description">{{ profile['profile']['description'] }}</span>
+            <ul>
+                <li>Tweets <span>{{ profile['profile']['statuses_count'] }}</span></li>
+                <li>Follow <span>{{ profile['profile']['friends_count'] }}</span></li>
+                <li>Followers <span>{{ profile['profile']['followers_count'] }}</span></li>
+            </ul>
+        </div>
+    </div>
+{% endfor %}

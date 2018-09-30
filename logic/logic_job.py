@@ -11,6 +11,11 @@ def get_job(job_id):
     if type(job_id) is not str:
         return {'error': 'job_id must be string!'}
 
+    if job_id == 'new':
+        job = {
+            'name': '',
+        }
+        return job
     try:
         job = Job.objects.get(id=job_id)
     except DoesNotExist:
@@ -37,14 +42,14 @@ def get_jobs():
         return {'error': str(e)}
 
     if jobs is None:
-        return json.dumps([])
+        return []
 
     jobs_json = []
 
     for job in jobs:
         jobs_json.append(job.to_dict())
 
-    return json.dumps(jobs_json)
+    return jobs_json
 
 
 def post_job(name, classifiers, crawling_score, seed_list, twitter_access_token, twitter_access_secret):
@@ -52,8 +57,8 @@ def post_job(name, classifiers, crawling_score, seed_list, twitter_access_token,
 
     data = {
         'name': name,
-        'classifiers': classifiers,
-        'crawling_score': crawling_score,
+        'classifiers': json.dumps(classifiers),
+        'crawling_score': json.dumps(crawling_score),
         'seed_list': seed_list,
         'twitter_access_secret': twitter_access_secret,
         'twitter_access_token': twitter_access_token
@@ -63,7 +68,7 @@ def post_job(name, classifiers, crawling_score, seed_list, twitter_access_token,
         job.save()
     except Exception as e:
         logging.error("exception: {0}".format(str(e)))
-        return {'error': str(e)}
+        return {'response': False, 'error': str(e)}
 
     return {
         'response': True,
@@ -71,7 +76,7 @@ def post_job(name, classifiers, crawling_score, seed_list, twitter_access_token,
     }
 
 
-def update_job(job_id, name, twitter_access_token, twitter_access_secret):
+def update_job(job_id, name, seed_list, twitter_access_token, twitter_access_secret):
     logging.info("update_job | job_id: {0}".format(job_id))
 
     try:
@@ -86,6 +91,7 @@ def update_job(job_id, name, twitter_access_token, twitter_access_secret):
         return {'error': str(e)}
 
     job.name = name
+    job.seed_list = seed_list
     job.twitter_access_token = twitter_access_token
     job.twitter_access_secret = twitter_access_secret
 
@@ -93,7 +99,7 @@ def update_job(job_id, name, twitter_access_token, twitter_access_secret):
         job.save()
     except Exception as e:
         logging.error("exception: {0}".format(str(e)))
-        return {'error': str(e)}
+        return {'response': False, 'error': str(e)}
 
     return {
         'response': True,
