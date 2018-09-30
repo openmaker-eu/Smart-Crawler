@@ -5,8 +5,8 @@ from .Base import BaseDocument, BaseSchema, BaseFactory
 
 class Job(BaseDocument):
     name = StringField(max_length=20, unique=True)
-    classifiers = DictField()
-    crawling_score = StringField()
+    classifiers = StringField()
+    crawling_strategy = StringField()
     seed_list = ListField(LongField())
     twitter_access_token = StringField()
     twitter_access_secret = StringField()
