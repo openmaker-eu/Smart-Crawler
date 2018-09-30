@@ -7,7 +7,10 @@ class Job(BaseDocument):
     name = StringField(max_length=20, unique=True)
     classifiers = DictField()
     crawling_score = StringField()
-    seed_list = ListField(LongField())
+
+    # TODO : Is the assumption that the maximum length is 100 logical ?
+    seed_list = ListField(LongField(), max_length=100)
+
     twitter_access_token = StringField()
     twitter_access_secret = StringField()
     is_active = BooleanField(default=False)
