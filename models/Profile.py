@@ -10,9 +10,10 @@ class Profile(BaseDocument):
     user_id = LongField()
     classifier_scores = ListField(FloatField())
     crawling_score = FloatField()
-    authorized =  BooleanField(default=False)
+    follower_ids = ListField(LongField())
+    authorized =  BooleanField(default=True)
     last_cursor = LongField(default=-1)
-    finished = LongField(default=True)
+    finished = LongField(default=False)
     meta = {
         'collection': 'profiles',
         'index_background': True,
