@@ -55,8 +55,12 @@
             width: 23%;
         }
 
-        table.table th:last-child {
+        table.table th:nth-last-child(2) {
             width: 13%;
+        }
+
+        table.table th:last-child {
+            width: 8%;
         }
 
         table.table td a {
@@ -80,6 +84,10 @@
 
         table.table td a.delete {
             color: #E34724;
+        }
+
+        table.table td a.profiles {
+            color: #4675e3;
         }
 
         table.table td i {
@@ -106,6 +114,7 @@
                 <th>ID</th>
                 <th>Job Name</th>
                 <th>Process</th>
+                <th>Profiles</th>
             </tr>
             </thead>
             <tbody>
@@ -125,6 +134,10 @@
                                 class="material-icons">&#xE254;</i></a>
                         <a class="delete" title="Delete" data-toggle="tooltip" data-id="{{ job['id'] }}"><i
                                 class="material-icons">&#xE872;</i></a>
+                    </td>
+                    <td style="text-align: center;">
+                        <a class="profiles" title="Profiles" href="/profiles?job_id={{ job['id'] }}" data-toggle="tooltip"><i
+                                    class="material-icons">account_circle</i></a>
                     </td>
                 </tr>
             {% endfor %}
