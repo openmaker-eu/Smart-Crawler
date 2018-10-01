@@ -14,6 +14,7 @@ class Job(BaseDocument):
     twitter_access_token = StringField()
     twitter_access_secret = StringField()
     is_active = BooleanField(default=False)
+    initialized = BooleanField(default=False)
     meta = {'collection': 'jobs'}
 
     def schema(self):

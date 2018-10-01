@@ -45,16 +45,17 @@ def execute_job(job_id):
     logging.info("Executing job with job_id: {0}".format(job_id))
 
     job_dict = get_job(job_id)
-
-    if not job_dict["is_active"]:
+    if job_dict["is_active"]:
         logging.info("Job with job_id {0} already active !")
         return
+
 
     try:
         # job is active now
         post_job_is_active(job_id, True)
 
         functionify(job_dict)
+        print("here")
 
         if not job_dict["initialized"]:
             initialize_job(job_dict)
@@ -69,6 +70,7 @@ def execute_job(job_id):
                 pass
 
     except Exception:
+        print("WTF")
         logging.exception("An exception occured !")
         post_job_is_active(job_id, False)
 
