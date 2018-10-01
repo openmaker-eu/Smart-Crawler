@@ -16,6 +16,10 @@ class JinjaCustomFilter:
         print(str(text))
         return
 
+    @classmethod
+    def repr(cls, text):
+        return repr(text)
+
 
 class TemplateRendering:
     @classmethod
@@ -25,6 +29,7 @@ class TemplateRendering:
         env = Environment(loader=FileSystemLoader(app_settings['template_path']))
         jcf = JinjaCustomFilter()
         env.filters['debug'] = jcf.debug
+        env.filters['repr'] = jcf.repr
         try:
             template = env.get_template(template_name)
         except TemplateNotFound:

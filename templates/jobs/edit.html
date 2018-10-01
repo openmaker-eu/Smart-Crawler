@@ -67,7 +67,7 @@
 
         require(['vs/editor/editor.main'], function () {
             classifiersEditor = monaco.editor.create(document.getElementById("classifiers"), {
-                value: {{ job['classifiers'] }},
+                value: {{ job['classifiers'] | repr }},
                 language: "python",
 
                 lineNumbers: "off",
@@ -78,7 +78,7 @@
             });
 
             crawlingScoresEditor = monaco.editor.create(document.getElementById("crawling_scores"), {
-                value: {{ job['crawling_score'] }},
+                value: {{ job['crawling_score'] | repr }},
                 language: "python",
 
                 lineNumbers: "off",

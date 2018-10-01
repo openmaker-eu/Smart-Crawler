@@ -57,8 +57,8 @@ def post_job(name, classifiers, crawling_score, seed_list, twitter_access_token,
 
     data = {
         'name': name,
-        'classifiers': json.dumps(classifiers),
-        'crawling_score': json.dumps(crawling_score),
+        'classifiers': classifiers,
+        'crawling_score': crawling_score,
         'seed_list': seed_list,
         'twitter_access_secret': twitter_access_secret,
         'twitter_access_token': twitter_access_token
