@@ -1,8 +1,8 @@
-import json
 import logging
 
 from mongoengine import DoesNotExist
 
+from models.Job import Job
 from models.Profile import Profile
 
 
@@ -25,11 +25,19 @@ def get_profile(profile_id):
     return profile.to_dict()
 
 
-def get_profiles(job_id):
-    logging.info("get_profile | job_id: {0}".format(job_id))
+def get_profiles(job_id, skip, limit):
+    logging.info("job_id: {0}".format(job_id))
 
     try:
-        profiles = Profile.objects.filter(job_id=job_id)
+        job = Job.objects.get(id=job_id)
+    except DoesNotExist:
+        return []
+    except Exception as e:
+        logging.error("exception: {0}".format(str(e)))
+        return {'error': str(e)}
+
+    try:
+        profiles = Profile.objects.filter(job_id=job.id).order_by('-crawling_score')[skip: skip + limit]
     except DoesNotExist:
         return {}
     except Exception as e:
@@ -37,14 +45,14 @@ def get_profiles(job_id):
         return {'error': str(e)}
 
     if profiles is None:
-        return json.dumps([])
+        return []
 
     profiles_json = []
 
-    for job in profiles:
-        profiles_json.append(job.to_dict())
+    for profile in profiles:
+        profiles_json.append(profile.to_dict())
 
-    return json.dumps(profiles_json)
+    return profiles_json
 
 
 def update_profile(profile_id, last_cursor, finished, follower_ids):
