@@ -8,14 +8,18 @@
     <div class="dropdown">
         <button class="btn btn-primary dropdown-toggle" type="button" id="jobs" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
-            Jobs {% if current_job %} ( current_job: {{ current_job['name'] }} ) {% endif %}
+            Jobs
         </button>
         <div class="dropdown-menu" aria-labelledby="jobs">
             {% for job in jobs %}
                 <a class="dropdown-item" href="/profiles?job_id={{ job['id'] }}">{{ job['name'] }}</a>
             {% endfor %}
         </div>
+        <span style="float: right">{% if current_job %} <b>Current Job:</b>
+            {{ current_job['name'] }}  {% endif %}</span>
     </div>
+
+
 
     <div class="wrapper grid" {% if current_job %} data-job-id="{{ current_job['id'] }}" {% endif %}>
         {% include "profiles/show.html" %}
