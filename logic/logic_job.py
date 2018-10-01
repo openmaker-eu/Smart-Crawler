@@ -7,7 +7,7 @@ from models.Job import Job
 
 
 def get_job(job_id):
-    logging.info("job_id: {0}".format(job_id))
+    logging.info("get_job | job_id: {0}".format(job_id))
     if type(job_id) is not str:
         return {'error': 'job_id must be string!'}
 
@@ -31,8 +31,7 @@ def get_job(job_id):
 
 
 def get_jobs():
-    # TODO: Fill the logging statement
-    logging.info("")
+    logging.info("get_jobs")
 
     try:
         jobs = Job.objects.filter()
@@ -53,17 +52,16 @@ def get_jobs():
     return jobs_json
 
 
-def post_job(name, classifiers, crawling_score, seed_list, twitter_access_key, twitter_access_secret):
-    # TODO: Fill the logging statement
-    logging.info("")
+def post_job(name, classifiers, crawling_score, seed_list, twitter_access_token, twitter_access_secret):
+    logging.info("post_job | job_name: {0}".format(name))
 
     data = {
         'name': name,
         'classifiers': json.dumps(classifiers),
-        'crawling_strategy': json.dumps(crawling_score),
+        'crawling_score': json.dumps(crawling_score),
         'seed_list': seed_list,
-        'twitter_access_token': twitter_access_key,
-        'twitter_access_secret': twitter_access_secret
+        'twitter_access_secret': twitter_access_secret,
+        'twitter_access_token': twitter_access_token
     }
     try:
         job = Job(**data)
@@ -78,8 +76,8 @@ def post_job(name, classifiers, crawling_score, seed_list, twitter_access_key, t
     }
 
 
-def update_job(job_id, name, seed_list, twitter_access_key, twitter_access_secret):
-    logging.info("job_id: {0}".format(job_id))
+def update_job(job_id, name, seed_list, twitter_access_token, twitter_access_secret):
+    logging.info("update_job | job_id: {0}".format(job_id))
 
     try:
         job = Job.objects.get(id=job_id)
@@ -94,7 +92,7 @@ def update_job(job_id, name, seed_list, twitter_access_key, twitter_access_secre
 
     job.name = name
     job.seed_list = seed_list
-    job.twitter_access_token = twitter_access_key
+    job.twitter_access_token = twitter_access_token
     job.twitter_access_secret = twitter_access_secret
 
     try:
@@ -109,7 +107,7 @@ def update_job(job_id, name, seed_list, twitter_access_key, twitter_access_secre
 
 
 def delete_job(job_id):
-    logging.info("job_id: {0}".format(job_id))
+    logging.info("delete_job | job_id: {0}".format(job_id))
     if type(job_id) is not str:
         return {'error': 'job_id must be string!'}
 
@@ -130,7 +128,7 @@ def delete_job(job_id):
 
 
 def post_job_is_active(job_id, is_active):
-    logging.info("job_id: {0}".format(job_id))
+    logging.info("post_job_is_active | job_id: {0}".format(job_id))
     if type(job_id) is not str:
         return {'error': 'job_id must be string!'}
 
@@ -153,7 +151,7 @@ def post_job_is_active(job_id, is_active):
 
 
 def post_job_initialize(job_id):
-    logging.info("job_id: {0}".format(job_id))
+    logging.info("post_job_initialize | job_id: {0}".format(job_id))
     if type(job_id) is not str:
         return {'error': 'job_id must be string!'}
 
