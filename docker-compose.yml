@@ -26,6 +26,8 @@ services:
             dockerfile: ./.docker/server.docker
         ports:
           - "${HOST_PORT}:${HOST_PORT}"
+        links:
+          - smart_crawler_redis:db
 
     smart_crawler_redis:
         restart: always
