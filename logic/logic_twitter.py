@@ -13,7 +13,7 @@ def get_profiles_from_twitter(api, user_ids):
     profiles = []
 
     for sl in slices:
-        profiles.append(get_profiles_from_twitter_helper(api, sl))
+        profiles += get_profiles_from_twitter_helper(api, sl)
 
     return profiles
 
@@ -24,14 +24,14 @@ def get_profiles_from_twitter_helper(api, user_ids):
 
 
 def get_followers_page_and_next_cursor(api, user_id, cursor=-1):
-    cursor = tweepy.Cursor(api, user_id=user_id, cursor=cursor).pages()
+    cursor = tweepy.Cursor(api.followers_ids, user_id=user_id, cursor=cursor).pages()
 
     try:
         page = cursor.next()
     except TweepError:
         raise AccountUnauthorizedException
 
-    next_cursor = page.next_cursor
+    next_cursor = cursor.next_cursor
 
     return page, next_cursor
 
