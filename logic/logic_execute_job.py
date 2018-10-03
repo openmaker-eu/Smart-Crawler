@@ -1,7 +1,8 @@
+import json
 import logging
 
 from decouple import config
-from redis import Redis
+from redis import Redis, ConnectionPool
 from rq import Queue
 from tweepy import RateLimitError
 
@@ -11,6 +12,11 @@ from logic.logic_profile import get_profile_with_max_score, create_profile_from_
 from logic.logic_twitter import get_profiles_from_twitter, get_followers_page_and_next_cursor, \
     AccountUnauthorizedException, create_tweepy_api
 from models.Profile import Profile
+
+
+pool = ConnectionPool(host='db', port=6379, password=config("REDIS_PASSWORD"), db=0)
+redis_conn = Redis(connection_pool=pool)
+q = Queue(config("PROFILE_RQ_WORKER_Q_NAME"), connection=redis_conn)
 
 
 def functionify(job_dict):
@@ -45,8 +51,9 @@ def execute_job(job_id):
     logging.info("Executing job with job_id: {0}".format(job_id))
 
     job_dict = get_job(job_id)
-    if job_dict["is_active"]:
-        logging.info("Job with job_id {0} already active !")
+
+    if not job_dict["is_active"]:
+        logging.info("Job with job_id {0} is not active ! Execution stops !")
         return
 
 
@@ -55,33 +62,38 @@ def execute_job(job_id):
         post_job_is_active(job_id, True)
 
         functionify(job_dict)
-        print("here")
 
         if not job_dict["initialized"]:
             initialize_job(job_dict)
 
         while True:
             next_user = get_profile_with_max_score(job_id)
-
             try:
+                if not next_user:
+                    logging.exception("next_user is empty !!!!!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 process_user(job_dict, next_user)
             except RateLimitError:
+                logging.info("Rate Limit ! Adding job with job_id {} to waiting queue".format(job_id))
                 # TODO : Add job id to waiting queue
                 pass
 
     except Exception:
         print("WTF")
-        logging.exception("An exception occured !")
+        logging.exception("An exception occurred !")
         post_job_is_active(job_id, False)
 
 
 def initialize_job(job_dict):
+    # if there are profiles from an unsuccessful initialization, delete them
+    Profile.objects(job_id = job_dict["id"]).delete()
+
     user_profiles = get_profiles_from_twitter(job_dict["tweepy_api"], job_dict["seed_list"])
 
     profiles = [create_profile_from_dict(job_dict, user_profile) for user_profile in user_profiles]
 
     Profile.objects.insert(profiles)
 
+    # mark as initialized, so that
     post_job_initialize(job_dict["id"])
 
 
@@ -95,7 +107,6 @@ def process_user(job_dict, profile_dict):
         return
 
     # Add a job to redis
-    q = Queue(config("PROFILE_RQ_WORKER_Q_NAME"), Redis(host=config("REDIS_SERVER_IP")))
     q.enqueue(save_new_profiles, args=(job_dict["id"], page))
 
     update_profile(profile_dict["id"], last_cursor=next_cursor, finished=(next_cursor == 0), follower_ids=page)
@@ -119,8 +130,8 @@ def save_new_profiles(job_id, user_ids):
     response = Profile.objects(job_id=job_id).aggregate(*pipeline)
     new_user_ids = list(response)[0]["new_ids"]
 
-    job = get_job(job_id)
-    job_dict = job.to_dict()
+    job_dict = get_job(job_id)
+
     functionify(job_dict)
 
     # Fetch profiles from Twitter and save to db

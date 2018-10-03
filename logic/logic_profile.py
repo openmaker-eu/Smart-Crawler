@@ -69,7 +69,7 @@ def update_profile(profile_id, last_cursor, finished, follower_ids):
         logging.error("exception: {0}".format(str(e)))
         return {'error': str(e)}
 
-    profile.update_one(last_cursor=last_cursor, finished=finished, add_to_set__follower_ids=follower_ids)
+    profile.update(last_cursor=last_cursor, finished=finished, add_to_set__follower_ids=follower_ids)
 
 
 def get_profile_with_max_score(job_id):
@@ -84,6 +84,7 @@ def get_profile_with_max_score(job_id):
         return {'error': str(e)}
 
     if profile is None:
+        logging.exception("Profile is empty !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", profile is None, job_id)
         return {}
 
     return profile.to_dict()

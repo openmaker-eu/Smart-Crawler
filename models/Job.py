@@ -1,6 +1,15 @@
-from mongoengine import StringField, DictField, LongField, ListField, BooleanField
+import logging
+
+from decouple import config
+from mongoengine import StringField, DictField, LongField, ListField, BooleanField, signals
+from redis import ConnectionPool, Redis
+from rq import Queue
 
 from .Base import BaseDocument, BaseSchema, BaseFactory
+
+pool = ConnectionPool(host='db', port=6379, password=config("REDIS_PASSWORD"), db=0)
+redis_conn = Redis(connection_pool=pool)
+q = Queue(config("JOB_RQ_WORKER_Q_NAME"), connection=redis_conn)
 
 
 class Job(BaseDocument):
@@ -20,6 +29,15 @@ class Job(BaseDocument):
     def schema(self):
         return JobSchema()
 
+    @classmethod
+    def post_save(cls, sender, document, **kwargs):
+        if document.is_active:
+            logging.info("Job with {} triggered post_save !!! is_active = {}".format(document.id, document.is_active))
+            from logic.logic_execute_job import execute_job
+            q.enqueue(execute_job, args=(str(document.id),))
+
+
+
 
 class JobSchema(BaseSchema):
     class Meta:
@@ -30,3 +48,5 @@ class JobSchema(BaseSchema):
 class JobFactory(BaseFactory):
     class Meta:
         model = Job
+
+signals.post_save.connect(Job.post_save, sender=Job)
