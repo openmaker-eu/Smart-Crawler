@@ -29,14 +29,14 @@ class Job(BaseDocument):
     def schema(self):
         return JobSchema()
 
-    @classmethod
-    def post_save(cls, sender, document, **kwargs):
-        if document.is_active:
-            logging.info("Job with {} triggered post_save !!! is_active = {}".format(document.id, document.is_active))
+    def save(self, *args, **kw):
+        logging.warning("Save Triggered !!!")
+        old = type(self).objects.get(pk=self.pk) if self.pk else None
+        super(Job, self).save(*args, **kw)
+
+        if old and not old.is_active and self.is_active:
             from logic.logic_execute_job import execute_job
-            q.enqueue(execute_job, args=(str(document.id),))
-
-
+            q.enqueue(execute_job, args=(str(self.id),))
 
 
 class JobSchema(BaseSchema):
@@ -48,5 +48,3 @@ class JobSchema(BaseSchema):
 class JobFactory(BaseFactory):
     class Meta:
         model = Job
-
-signals.post_save.connect(Job.post_save, sender=Job)
