@@ -28,7 +28,7 @@
 
 {% block scripts %}
     <script>
-        var limit = 24, skip = 0, is_available = true;
+        var limit = 24, skip = limit, is_available = true;
 
         $(window).scroll(function () {
             if ($(window).scrollTop() + $(window).height() === $(document).height()) {
