@@ -9,7 +9,7 @@ class ProfilesHandler(BaseHandler, TemplateRendering):
         if job_id:
             limit = int(self.get_argument('limit', 24))
             skip = int(self.get_argument('skip', 0))
-            profiles = get_profiles(job_id, limit, skip)
+            profiles = get_profiles(job_id, skip, limit)
             variables = {
                 'profiles': profiles,
                 'jobs': get_jobs(),
