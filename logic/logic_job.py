@@ -166,8 +166,6 @@ def post_job_initialize(job_id):
         logging.error("exception: {0}".format(str(e)))
         return {'error': str(e)}
 
-    job.initialised = True
-
-    job.save()
+    job.update(set__initialized = True)
 
     return {'response': True}

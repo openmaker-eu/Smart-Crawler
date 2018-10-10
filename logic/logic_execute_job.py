@@ -13,7 +13,6 @@ from logic.logic_twitter import get_profiles_from_twitter, get_followers_page_an
     AccountUnauthorizedException, create_tweepy_api
 from models.Profile import Profile
 
-
 pool = ConnectionPool(host='db', port=6379, password=config("REDIS_PASSWORD"), db=0)
 redis_conn = Redis(connection_pool=pool)
 q = Queue(config("PROFILE_RQ_WORKER_Q_NAME"), connection=redis_conn)
@@ -56,36 +55,33 @@ def execute_job(job_id):
         logging.info("Job with job_id {0} is not active ! Execution stops !")
         return
 
-
     try:
-        # job is active now
-        post_job_is_active(job_id, True)
-
         functionify(job_dict)
 
         if not job_dict["initialized"]:
             initialize_job(job_dict)
 
         while True:
-            next_user = get_profile_with_max_score(job_id)
+            next_user = Profile.objects(job_id=job_id, authorized=True, finished=False).no_cache().order_by(
+                "-crawling_score").first()
+
             try:
-                if not next_user:
-                    logging.exception("next_user is empty !!!!!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 process_user(job_dict, next_user)
             except RateLimitError:
-                logging.info("Rate Limit ! Adding job with job_id {} to waiting queue".format(job_id))
+                logging.warning("Rate Limit ! Adding job with job_id {} to waiting queue".format(job_id))
+                post_job_is_active(job_id, False)
+                return
                 # TODO : Add job id to waiting queue
-                pass
+
 
     except Exception:
-        print("WTF")
-        logging.exception("An exception occurred !")
+        logging.exception("An exception occurred ! Quitting job with id {}".format(job_id))
         post_job_is_active(job_id, False)
 
 
 def initialize_job(job_dict):
     # if there are profiles from an unsuccessful initialization, delete them
-    Profile.objects(job_id = job_dict["id"]).delete()
+    Profile.objects(job_id=str(job_dict["id"])).delete()
 
     user_profiles = get_profiles_from_twitter(job_dict["tweepy_api"], job_dict["seed_list"])
 
@@ -94,22 +90,23 @@ def initialize_job(job_dict):
     Profile.objects.insert(profiles)
 
     # mark as initialized, so that
-    post_job_initialize(job_dict["id"])
+    post_job_initialize(str(job_dict["id"]))
 
 
 def process_user(job_dict, profile_dict):
     try:
         page, next_cursor = get_followers_page_and_next_cursor(job_dict["tweepy_api"], profile_dict["user_id"],
                                                                profile_dict["last_cursor"])
-    except AccountUnauthorizedException:
+    except AccountUnauthorizedException as e:
+        logging.warning("Account Unauthorized !!! ", e)
         post_profile_unauthorized(profile_dict["id"])
 
         return
 
     # Add a job to redis
-    q.enqueue(save_new_profiles, args=(job_dict["id"], page))
+    q.enqueue(save_new_profiles, args=(str(job_dict["id"]), page))
 
-    update_profile(profile_dict["id"], last_cursor=next_cursor, finished=(next_cursor == 0), follower_ids=page)
+    update_profile(str(profile_dict["id"]), last_cursor=next_cursor, finished=(next_cursor == 0), follower_ids=page)
 
 
 def save_new_profiles(job_id, user_ids):

@@ -69,7 +69,7 @@ def update_profile(profile_id, last_cursor, finished, follower_ids):
         logging.error("exception: {0}".format(str(e)))
         return {'error': str(e)}
 
-    profile.update(last_cursor=last_cursor, finished=finished, add_to_set__follower_ids=follower_ids)
+    profile.update(set__last_cursor=last_cursor, set__finished=finished, add_to_set__follower_ids=follower_ids)
 
 
 def get_profile_with_max_score(job_id):
@@ -84,7 +84,6 @@ def get_profile_with_max_score(job_id):
         return {'error': str(e)}
 
     if profile is None:
-        logging.exception("Profile is empty !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", profile is None, job_id)
         return {}
 
     return profile.to_dict()
@@ -122,8 +121,6 @@ def post_profile_unauthorized(profile_id):
         logging.error("exception: {0}".format(str(e)))
         return {'error': str(e)}
 
-    profile.authorized = False
-
-    profile.save()
+    profile.update(set__authorized = False)
 
     return {'response': True}

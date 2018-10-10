@@ -1,6 +1,6 @@
 import tweepy
 from decouple import config
-from tweepy import TweepError, OAuthHandler
+from tweepy import TweepError, OAuthHandler, RateLimitError
 
 
 class AccountUnauthorizedException(Exception):
@@ -28,8 +28,10 @@ def get_followers_page_and_next_cursor(api, user_id, cursor=-1):
 
     try:
         page = cursor.next()
-    except TweepError:
-        raise AccountUnauthorizedException
+    except RateLimitError:
+        raise RateLimitError("RateLimitError")
+    except TweepError as e:
+        raise AccountUnauthorizedException(e)
 
     next_cursor = cursor.next_cursor
 
