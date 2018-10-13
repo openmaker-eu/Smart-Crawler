@@ -126,9 +126,9 @@
         $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip();
             $(document).on("click", ".delete", function (event) {
-                var jobId = $(event.target).parents("a").attr('data-id');
+                var moduleId = $(event.target).parents("a").attr('data-id');
                 $.ajax({
-                    url: '/module/'.concat(jobId),
+                    url: '/module/'.concat(moduleId),
                     type: 'delete',
                     data: {},
                     success: function () {
