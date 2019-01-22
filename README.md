@@ -4,7 +4,7 @@ Smart-Crawler is a tool that enables users to crawl Twitter efficiently.
 
 ## Repo Overview
 
-* data/ : Contains the anonimized Twitter data that is used for simulations
+* twitter-data/ : Contains the anonimized Twitter data that is used for simulations
 * docs/ : Contains the references and documentation
     * problem_description.md : Description of the problem
     * model.md : Description of our model
